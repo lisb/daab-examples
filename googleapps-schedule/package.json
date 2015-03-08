@@ -1,0 +1,27 @@
+{
+  "name": "starter",
+  "version": "0.2.1",
+  "private": true,
+
+  "author": "L is B corp.",
+
+  "keywords": [
+    "hubot",
+    "direct",
+    "bot",
+    "daab"
+  ],
+
+  "description": "A simple helpful robot for your Company",
+
+  "dependencies": {
+    "hubot":         "https://direct4b.com/ja/bot/dev/modules/hubot.tgz",
+    "hubot-scripts": ">= 2.5.7 < 3.0.0",
+    "forever": "0.13.0"
+  },
+
+  "engines": {
+    "node": ">= 0.8.x",
+    "npm":  ">= 1.1.x"
+  }
+}
