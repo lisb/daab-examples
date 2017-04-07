@@ -1,157 +1,98 @@
-# Hubot
+# 日報ボット for Google Apps
 
-This is a version of GitHub's Campfire bot, hubot. He's pretty cool.
+## はじめに
 
-This version is designed to be deployed on [Heroku][heroku]. This README was generated for you by hubot to help get you started. Definitely update and improve to talk about your own instance, how to use and deploy, what functionality he has, etc!
+このドキュメントは、direct と Google Apps を連携させた日報ボット(以下、ボット)について、各種設定から実行するまでの手順書となっています。そのため、direct および Google Apps の両サービスをご契約・ご利用中のものとしています。
 
-[heroku]: http://www.heroku.com
+まだ、ご利用でない方は、[direct](https://direct4b.com/ja/) および [Google Apps](https://www.google.co.jp/intx/ja/work/apps/business/) のそれぞれに無料トライアルがありますので、そちらをご参照ください。
 
-### Testing Hubot Locally
+## ボット用アカウントの取得
 
-You can test your hubot by running the following.
+ボット用に、新しくメールアドレスを用意します。
 
-    % bin/hubot
+### direct 
 
-You'll see some start up output about where your scripts come from and a
-prompt.
+通常のユーザと同じように、ボット用アカウントを作成します。
 
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading adapter shell
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading scripts from /home/tomb/Development/hubot/scripts
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading scripts from /home/tomb/Development/hubot/src/scripts
-    Hubot>
+組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
+管理ツールのご利用方法については、[こちらの管理ツールマニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
 
-Then you can interact with hubot by typing `hubot help`.
+組織に招待されると、ボット用メールアドレスにメールが届きます。
+メールに記載されているURLをクリックしてアカウント登録手続きをしてください。ご利用開始までの手順については、[こちらの導入マニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。
 
-    Hubot> hubot help
+[ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
+招待を承認する画面が開きますので、その画面で「承認」を選択してください。
+次に、設定＞プロフィール編集より、表示名とプロフィール画像をボット用に変更します。
 
-    Hubot> animate me <query> - The same thing as `image me`, except adds a few
-    convert me <expression> to <units> - Convert expression to given units.
-    help - Displays all of the help commands that Hubot knows about.
-    ...
+### Google Apps
 
+連携アプリケーションの作成と同じように、ボット用プロジェクトを作成します。
 
-### Scripting
+[Google Developer Console](https://console.developers.google.com/) からプロジェクトを追加します。Google Developer Consoleのご利用方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#creatingdeletingprojects)をご参照ください。
 
-Take a look at the scripts in the `./scripts` folder for examples.
-Delete any scripts you think are useless or boring.  Add whatever functionality you
-want hubot to have. Read up on what you can do with hubot in the [Scripting Guide](https://github.com/github/hubot/blob/master/docs/scripting.md).
+メニュー「APIと認証」の API で Drive API を有効にします。API の有効方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#activatingapis)をご参照ください。
 
-### Redis Persistence
+メニュー「APIと認証」の認証情報で、OAuth用に「新しいクライアントIDを作成」します。「インストールされているアプリケーション」「その他」の組み合わせで作成してください。認証情報の設定する方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#generatingoauth2)をご参照ください。
 
-If you are going to use the `redis-brain.coffee` script from `hubot-scripts`
-(strongly suggested), you will need to add the Redis to Go addon on Heroku which requires a verified
-account or you can create an account at [Redis to Go][redistogo] and manually
-set the `REDISTOGO_URL` variable.
+## node のインストール
 
-    % heroku config:set REDISTOGO_URL="..."
+[http://nodejs.org/](http://nodejs.org/) から最新版をインストールします。v6.2.1 で動作確認しています。
 
-If you don't require any persistence feel free to remove the
-`redis-brain.coffee` from `hubot-scripts.json` and you don't need to worry
-about redis at all.
+## サンプルプログラムの設定
 
-[redistogo]: https://redistogo.com/
+サンプルプログラムを[ダウンロード](googleapps-nippo-download.html)して展開します。以降は、この展開したディレクトリ(フォルダ)にて、コマンドライン(コマンドプロンプト)で作業することになります。
 
-## Adapters
+### direct
 
-Adapters are the interface to the service you want your hubot to run on. This
-can be something like Campfire or IRC. There are a number of third party
-adapters that the community have contributed. Check
-[Hubot Adapters][hubot-adapters] for the available ones.
+direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 
-If you would like to run a non-Campfire or shell adapter you will need to add
-the adapter package as a dependency to the `package.json` file in the
-`dependencies` section.
+	$ bin/hubot
+	Email: loginid@bot.email.com
+	Password: *****
+	0123456789ABCDEF_your_direct_access_token
 
-Once you've added the dependency and run `npm install` to install it you can
-then run hubot with the adapter.
+以下の環境変数に、アクセストークンを設定します。
+	
+	$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
+	
 
-    % bin/hubot -a <adapter>
+### Google Apps
 
-Where `<adapter>` is the name of your adapter without the `hubot-` prefix.
+Google Apps へのアクセスには、[OAuth2](https://developers.google.com/accounts/docs/OAuth2/)が利用されます。
 
-[hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
+以下の環境変数に、取得したアプリケーションIDおよびシークレットを設定します。
 
-## hubot-scripts
+	export GAPPS_CLIENT_ID=
+	export GAPPS_CLIENT_SECRET=
 
-There will inevitably be functionality that everyone will want. Instead
-of adding it to hubot itself, you can submit pull requests to
-[hubot-scripts][hubot-scripts].
+ボットに初めて話しかけたとき、コンソールにURLが表示されて処理が停止します。
 
-To enable scripts from the hubot-scripts package, add the script name with
-extension as a double quoted string to the `hubot-scripts.json` file in this
-repo.
+	$ bin/hubot
+	...
+	https://accounts.google.com/o/oauth2/auth?....
+	code? 
+	
+この URL をブラウザで開き、Google Apps の日報ボット用アカウントでログインします。ログインが成功すると認可画面が表示されますので承認してください。その後、コードが表示される画面になるので、コマンドラインに戻ってそのコードを入力します。
 
-[hubot-scripts]: https://github.com/github/hubot-scripts
+	code? 4/aBcDeF...
 
-## external-scripts
+トークンの情報は起動したディレクトリの ``.gdrive`` ファイルに保存されます。次回起動時はこの内容が読み込まれます。
 
-Tired of waiting for your script to be merged into `hubot-scripts`? Want to
-maintain the repository and package yourself? Then this added functionality
-maybe for you!
+### 日報フォルダとテンプレートファイル
 
-Hubot is now able to load scripts from third-party `npm` packages! To enable
-this functionality you can follow the following steps.
+日報はテンプレートファイルから生成され、日報フォルダにアップロードされます。
 
-1. Add the packages as dependencies into your `package.json`
-2. `npm install` to make sure those packages are installed
+Google Drive に``日報``という名前のフォルダを作成し、日報ボットの利用者が読み書きできるようにアクセス権限を設定します。
 
-To enable third-party scripts that you've added you will need to add the package
-name as a double quoted string to the `external-scripts.json` file in this repo.
+この日報フォルダに``日報テンプレ.docx``というファイルをアップロードし、Google ドキュメントに変換します。ファイル名は拡張子を削除して``日報テンプレ``に変更してください。テンプレートファイルのサンプルは、ダウンロードページで取得できます。
 
-## Deployment
+テンプレートファイル名とフォルダ名は、以下の環境変数で変更することができます。未設定の場合は以下の値になります。
 
-    % heroku create --stack cedar
-    % git push heroku master
-    % heroku ps:scale app=1
+	export NIPPO_FOLDER_NAME=日報
+	export NIPPO_TEMPLATE_NAME=日報テンプレ.docx
 
-If your Heroku account has been verified you can run the following to enable
-and add the Redis to Go addon to your app.
+## サンプルプログラムの実行
 
-    % heroku addons:add redistogo:nano
+以下のコマンドを実行します。
 
-If you run into any problems, checkout Heroku's [docs][heroku-node-docs].
-
-You'll need to edit the `Procfile` to set the name of your hubot.
-
-More detailed documentation can be found on the
-[deploying hubot onto Heroku][deploy-heroku] wiki page.
-
-### Deploying to UNIX or Windows
-
-If you would like to deploy to either a UNIX operating system or Windows.
-Please check out the [deploying hubot onto UNIX][deploy-unix] and
-[deploying hubot onto Windows][deploy-windows] wiki pages.
-
-[heroku-node-docs]: http://devcenter.heroku.com/articles/node-js
-[deploy-heroku]: https://github.com/github/hubot/blob/master/docs/deploying/heroku.md
-[deploy-unix]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
-[deploy-windows]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
-
-## Campfire Variables
-
-If you are using the Campfire adapter you will need to set some environment
-variables. Refer to the documentation for other adapters and the configuraiton
-of those, links to the adapters can be found on [Hubot Adapters][hubot-adapters].
-
-Create a separate Campfire user for your bot and get their token from the web
-UI.
-
-    % heroku config:set HUBOT_CAMPFIRE_TOKEN="..."
-
-Get the numeric IDs of the rooms you want the bot to join, comma delimited. If
-you want the bot to connect to `https://mysubdomain.campfirenow.com/room/42` 
-and `https://mysubdomain.campfirenow.com/room/1024` then you'd add it like this:
-
-    % heroku config:set HUBOT_CAMPFIRE_ROOMS="42,1024"
-
-Add the subdomain hubot should connect to. If you web URL looks like
-`http://mysubdomain.campfirenow.com` then you'd add it like this:
-
-    % heroku config:set HUBOT_CAMPFIRE_ACCOUNT="mysubdomain"
-
-[hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
-
-## Restart the bot
-
-You may want to get comfortable with `heroku logs` and `heroku restart`
-if you're having issues.
+	$ bin/hubot

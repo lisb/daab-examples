@@ -15,10 +15,10 @@
   "description": "A simple helpful robot for your Company",
 
   "dependencies": {
-    "office-js": "https://direct4b.com/ja/bot/dev/modules/office-js.tgz",
-    "hubot":         "https://direct4b.com/ja/bot/dev/modules/hubot.tgz",
+    "forever": "^0.15.3",
     "hubot-scripts": ">= 2.5.7 < 3.0.0",
-    "forever": "0.13.0"
+    "lisb-hubot": "^2.19.2",
+    "office-js": "^0.1.0"
   },
 
   "engines": {
