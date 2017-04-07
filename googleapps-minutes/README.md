@@ -1,157 +1,70 @@
-# Hubot
+# 議事録ボット for Google Apps
 
-This is a version of GitHub's Campfire bot, hubot. He's pretty cool.
+## はじめに
 
-This version is designed to be deployed on [Heroku][heroku]. This README was generated for you by hubot to help get you started. Definitely update and improve to talk about your own instance, how to use and deploy, what functionality he has, etc!
+このドキュメントは、direct と Google Apps を連携させた議事録ボット(以下、ボット)について、各種設定から実行するまでの手順書となっています。そのため、direct および Google Apps の両サービスをご契約・ご利用中のものとしています。
 
-[heroku]: http://www.heroku.com
+まだ、ご利用でない方は、[direct](https://direct4b.com/ja/) および [Google Apps](https://www.google.co.jp/intx/ja/work/apps/business/) のそれぞれに無料トライアルがありますので、そちらをご参照ください。
 
-### Testing Hubot Locally
+## ボット用アカウントの取得
 
-You can test your hubot by running the following.
+ボット用に、新しくメールアドレスを用意します。
 
-    % bin/hubot
+### direct 
 
-You'll see some start up output about where your scripts come from and a
-prompt.
+通常のユーザと同じように、ボット用アカウントを作成します。
 
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading adapter shell
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading scripts from /home/tomb/Development/hubot/scripts
-    [Sun, 04 Dec 2011 18:41:11 GMT] INFO Loading scripts from /home/tomb/Development/hubot/src/scripts
-    Hubot>
+組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
+管理ツールのご利用方法については、[こちらの管理ツールマニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
 
-Then you can interact with hubot by typing `hubot help`.
+組織に招待されると、ボット用メールアドレスにメールが届きます。
+メールに記載されているURLをクリックしてアカウント登録手続きをしてください。ご利用開始までの手順については、[こちらの導入マニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。
 
-    Hubot> hubot help
-
-    Hubot> animate me <query> - The same thing as `image me`, except adds a few
-    convert me <expression> to <units> - Convert expression to given units.
-    help - Displays all of the help commands that Hubot knows about.
-    ...
+[ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
+招待を承認する画面が開きますので、その画面で「承認」を選択してください。
+次に、設定＞プロフィール編集より、表示名とプロフィール画像をボット用に変更します。
 
 
-### Scripting
+## node のインストール
 
-Take a look at the scripts in the `./scripts` folder for examples.
-Delete any scripts you think are useless or boring.  Add whatever functionality you
-want hubot to have. Read up on what you can do with hubot in the [Scripting Guide](https://github.com/github/hubot/blob/master/docs/scripting.md).
+[http://nodejs.org/](http://nodejs.org/) から最新版をインストールします。v6.2.1 で動作確認しています。
 
-### Redis Persistence
+## サンプルプログラムの設定
 
-If you are going to use the `redis-brain.coffee` script from `hubot-scripts`
-(strongly suggested), you will need to add the Redis to Go addon on Heroku which requires a verified
-account or you can create an account at [Redis to Go][redistogo] and manually
-set the `REDISTOGO_URL` variable.
+サンプルプログラムを[ダウンロード](googleapps-minutes-download.html)して展開します。以降は、この展開したディレクトリ(フォルダ)にて、コマンドライン(コマンドプロンプト)で作業することになります。
 
-    % heroku config:set REDISTOGO_URL="..."
+### direct
 
-If you don't require any persistence feel free to remove the
-`redis-brain.coffee` from `hubot-scripts.json` and you don't need to worry
-about redis at all.
+direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 
-[redistogo]: https://redistogo.com/
+	$ bin/hubot
+	Email: loginid@bot.email.com
+	Password: *****
+	0123456789ABCDEF_your_direct_access_token
 
-## Adapters
+以下の環境変数に、アクセストークンを設定します。
+	
+	$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
+	
 
-Adapters are the interface to the service you want your hubot to run on. This
-can be something like Campfire or IRC. There are a number of third party
-adapters that the community have contributed. Check
-[Hubot Adapters][hubot-adapters] for the available ones.
+### Google Apps
 
-If you would like to run a non-Campfire or shell adapter you will need to add
-the adapter package as a dependency to the `package.json` file in the
-`dependencies` section.
+Google Apps へのアクセスには、Google Apps Script の「Webアプリケーションとして導入」が利用されます。
 
-Once you've added the dependency and run `npm install` to install it you can
-then run hubot with the adapter.
+Google Drive で新しいGoogle Apps Script を作成します。テンプレートとしては「ウェブアプリケーションとしてのスクリプ」を選択します。次に、議事録ボット用の Google Apps Script を[ダウンロード](googleapps-minutes.gs)して、テキストファイルで開いてその内容で置換します。
 
-    % bin/hubot -a <adapter>
+メニューから、公開 > 「Webアプリケーションとして導入」し、議事録ボットからアクセスできるように適切に権限を設定して公開します。このとき表示される「現在のウェブ アプリケーションの URL」を以下の環境変数に設定します。
 
-Where `<adapter>` is the name of your adapter without the `hubot-` prefix.
+	export GAPPS_URL=https://script.google.com/a/macros/...
 
-[hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
+### 議事録テンプレート
 
-## hubot-scripts
+Google Drive に ``議事録ひな形``というファイル名でテンプレートファイルを置きます。
 
-There will inevitably be functionality that everyone will want. Instead
-of adding it to hubot itself, you can submit pull requests to
-[hubot-scripts][hubot-scripts].
+[テンプレートファイルのサンプル](議事録ひな形.docx)をダウンロードできます。このファイルは Word 形式になっていますので、Google Driveにアップロードするときは Google document に変換してください。
 
-To enable scripts from the hubot-scripts package, add the script name with
-extension as a double quoted string to the `hubot-scripts.json` file in this
-repo.
+## サンプルプログラムの実行
 
-[hubot-scripts]: https://github.com/github/hubot-scripts
+以下のコマンドを実行します。
 
-## external-scripts
-
-Tired of waiting for your script to be merged into `hubot-scripts`? Want to
-maintain the repository and package yourself? Then this added functionality
-maybe for you!
-
-Hubot is now able to load scripts from third-party `npm` packages! To enable
-this functionality you can follow the following steps.
-
-1. Add the packages as dependencies into your `package.json`
-2. `npm install` to make sure those packages are installed
-
-To enable third-party scripts that you've added you will need to add the package
-name as a double quoted string to the `external-scripts.json` file in this repo.
-
-## Deployment
-
-    % heroku create --stack cedar
-    % git push heroku master
-    % heroku ps:scale app=1
-
-If your Heroku account has been verified you can run the following to enable
-and add the Redis to Go addon to your app.
-
-    % heroku addons:add redistogo:nano
-
-If you run into any problems, checkout Heroku's [docs][heroku-node-docs].
-
-You'll need to edit the `Procfile` to set the name of your hubot.
-
-More detailed documentation can be found on the
-[deploying hubot onto Heroku][deploy-heroku] wiki page.
-
-### Deploying to UNIX or Windows
-
-If you would like to deploy to either a UNIX operating system or Windows.
-Please check out the [deploying hubot onto UNIX][deploy-unix] and
-[deploying hubot onto Windows][deploy-windows] wiki pages.
-
-[heroku-node-docs]: http://devcenter.heroku.com/articles/node-js
-[deploy-heroku]: https://github.com/github/hubot/blob/master/docs/deploying/heroku.md
-[deploy-unix]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
-[deploy-windows]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
-
-## Campfire Variables
-
-If you are using the Campfire adapter you will need to set some environment
-variables. Refer to the documentation for other adapters and the configuraiton
-of those, links to the adapters can be found on [Hubot Adapters][hubot-adapters].
-
-Create a separate Campfire user for your bot and get their token from the web
-UI.
-
-    % heroku config:set HUBOT_CAMPFIRE_TOKEN="..."
-
-Get the numeric IDs of the rooms you want the bot to join, comma delimited. If
-you want the bot to connect to `https://mysubdomain.campfirenow.com/room/42` 
-and `https://mysubdomain.campfirenow.com/room/1024` then you'd add it like this:
-
-    % heroku config:set HUBOT_CAMPFIRE_ROOMS="42,1024"
-
-Add the subdomain hubot should connect to. If you web URL looks like
-`http://mysubdomain.campfirenow.com` then you'd add it like this:
-
-    % heroku config:set HUBOT_CAMPFIRE_ACCOUNT="mysubdomain"
-
-[hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
-
-## Restart the bot
-
-You may want to get comfortable with `heroku logs` and `heroku restart`
-if you're having issues.
+	$ bin/hubot
