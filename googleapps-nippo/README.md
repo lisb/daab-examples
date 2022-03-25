@@ -1,4 +1,4 @@
-# 日報ボット for Google Apps
+# 日報ボット G Suite 版
 
 ## はじめに
 
@@ -15,10 +15,10 @@
 通常のユーザと同じように、ボット用アカウントを作成します。
 
 組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
-管理ツールのご利用方法については、[こちらの管理ツールマニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
+管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
 
 組織に招待されると、ボット用メールアドレスにメールが届きます。
-メールに記載されているURLをクリックしてアカウント登録手続きをしてください。ご利用開始までの手順については、[こちらの導入マニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。
+メールに記載されているURLをクリックしてアカウント登録手続きをしてください。
 
 [ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
 招待を承認する画面が開きますので、その画面で「承認」を選択してください。
@@ -34,27 +34,31 @@
 
 メニュー「APIと認証」の認証情報で、OAuth用に「新しいクライアントIDを作成」します。「インストールされているアプリケーション」「その他」の組み合わせで作成してください。認証情報の設定する方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#generatingoauth2)をご参照ください。
 
-## node のインストール
+## Node.js のインストール
 
-[http://nodejs.org/](http://nodejs.org/) から最新版をインストールします。v6.2.1 で動作確認しています。
+[https://nodejs.org/](https://nodejs.org/) から LTS 版をインストールします。
 
 ## サンプルプログラムの設定
 
-サンプルプログラムを[ダウンロード](googleapps-nippo-download.html)して展開します。以降は、この展開したディレクトリ(フォルダ)にて、コマンドライン(コマンドプロンプト)で作業することになります。
+このリポジトリを `git clone` して `googleapps-nippo` ディレクトリに移動します。
+以降はこのディレクトリにて、コマンドライン (コマンドプロンプト) で作業することになります。
 
 ### direct
 
 direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 
-	$ bin/hubot
-	Email: loginid@bot.email.com
-	Password: *****
-	0123456789ABCDEF_your_direct_access_token
+```sh
+$ bin/hubot
+Email: loginid@bot.email.com
+Password: *****
+0123456789ABCDEF_your_direct_access_token
+```
 
 以下の環境変数に、アクセストークンを設定します。
-	
-	$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
-	
+
+```sh
+$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
+```
 
 ### Google Apps
 
@@ -62,19 +66,25 @@ Google Apps へのアクセスには、[OAuth2](https://developers.google.com/ac
 
 以下の環境変数に、取得したアプリケーションIDおよびシークレットを設定します。
 
-	export GAPPS_CLIENT_ID=
-	export GAPPS_CLIENT_SECRET=
+```sh
+$ export GAPPS_CLIENT_ID=
+$ export GAPPS_CLIENT_SECRET=
+```
 
 ボットに初めて話しかけたとき、コンソールにURLが表示されて処理が停止します。
 
-	$ bin/hubot
-	...
-	https://accounts.google.com/o/oauth2/auth?....
-	code? 
-	
+```sh
+$ bin/hubot
+...
+https://accounts.google.com/o/oauth2/auth?....
+code? 
+```
+
 この URL をブラウザで開き、Google Apps の日報ボット用アカウントでログインします。ログインが成功すると認可画面が表示されますので承認してください。その後、コードが表示される画面になるので、コマンドラインに戻ってそのコードを入力します。
 
-	code? 4/aBcDeF...
+```sh
+code? 4/aBcDeF...
+```
 
 トークンの情報は起動したディレクトリの ``.gdrive`` ファイルに保存されます。次回起動時はこの内容が読み込まれます。
 
@@ -88,11 +98,15 @@ Google Drive に``日報``という名前のフォルダを作成し、日報ボ
 
 テンプレートファイル名とフォルダ名は、以下の環境変数で変更することができます。未設定の場合は以下の値になります。
 
-	export NIPPO_FOLDER_NAME=日報
-	export NIPPO_TEMPLATE_NAME=日報テンプレ.docx
+```sh
+$ export NIPPO_FOLDER_NAME=日報
+$ export NIPPO_TEMPLATE_NAME=日報テンプレ.docx
+```
 
 ## サンプルプログラムの実行
 
 以下のコマンドを実行します。
 
-	$ bin/hubot
+```sh
+$ bin/hubot
+```

@@ -1,4 +1,4 @@
-# 議事録ボット for Google Apps
+# 議事録ボット G Suite 版
 
 ## はじめに
 
@@ -15,37 +15,41 @@
 通常のユーザと同じように、ボット用アカウントを作成します。
 
 組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
-管理ツールのご利用方法については、[こちらの管理ツールマニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
+管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
 
 組織に招待されると、ボット用メールアドレスにメールが届きます。
-メールに記載されているURLをクリックしてアカウント登録手続きをしてください。ご利用開始までの手順については、[こちらの導入マニュアル](https://direct4b.com/ja/manual_dl.html)をご参照ください。
+メールに記載されているURLをクリックしてアカウント登録手続きをしてください。
 
 [ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
 招待を承認する画面が開きますので、その画面で「承認」を選択してください。
 次に、設定＞プロフィール編集より、表示名とプロフィール画像をボット用に変更します。
 
 
-## node のインストール
+## Node.js のインストール
 
-[http://nodejs.org/](http://nodejs.org/) から最新版をインストールします。v6.2.1 で動作確認しています。
+[https://nodejs.org/](https://nodejs.org/) から LTS 版をインストールします。
 
 ## サンプルプログラムの設定
 
-サンプルプログラムを[ダウンロード](googleapps-minutes-download.html)して展開します。以降は、この展開したディレクトリ(フォルダ)にて、コマンドライン(コマンドプロンプト)で作業することになります。
+このリポジトリを `git clone` して `googleapps-minutes` ディレクトリに移動します。
+以降はこのディレクトリにて、コマンドライン (コマンドプロンプト) で作業することになります。
 
 ### direct
 
 direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 
-	$ bin/hubot
-	Email: loginid@bot.email.com
-	Password: *****
-	0123456789ABCDEF_your_direct_access_token
+```sh
+$ bin/hubot
+Email: loginid@bot.email.com
+Password: *****
+0123456789ABCDEF_your_direct_access_token
+```
 
 以下の環境変数に、アクセストークンを設定します。
-	
-	$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
-	
+
+```sh
+$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
+```
 
 ### Google Apps
 
@@ -55,7 +59,9 @@ Google Drive で新しいGoogle Apps Script を作成します。テンプレー
 
 メニューから、公開 > 「Webアプリケーションとして導入」し、議事録ボットからアクセスできるように適切に権限を設定して公開します。このとき表示される「現在のウェブ アプリケーションの URL」を以下の環境変数に設定します。
 
-	export GAPPS_URL=https://script.google.com/a/macros/...
+```sh
+$ export GAPPS_URL=https://script.google.com/a/macros/...
+```
 
 ### 議事録テンプレート
 
@@ -67,4 +73,6 @@ Google Drive に ``議事録ひな形``というファイル名でテンプレ�
 
 以下のコマンドを実行します。
 
-	$ bin/hubot
+```sh
+$ bin/hubot
+```
