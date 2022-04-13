@@ -1,27 +1,23 @@
 {
-  "name": "starter",
-  "version": "0.2.1",
+  "name": "minutes-bot",
+  "description": "An example minute bot for Google Workspace",
+  "version": "0.1.0",
   "private": true,
-
+  "scripts": {
+    "start": "DISABLE_NPM_INSTALL=yes bin/hubot run"
+  },
   "author": "L is B corp.",
-
   "keywords": [
     "hubot",
     "direct",
     "bot",
     "daab"
   ],
-
-  "description": "A simple helpful robot for your Company",
-
   "dependencies": {
-    "forever": "^0.15.3",
-    "hubot-scripts": ">= 2.5.7 < 3.0.0",
-    "lisb-hubot": "^2.19.2"
-  },
-
-  "engines": {
-    "node": ">= 0.8.x",
-    "npm":  ">= 1.1.x"
+    "daab-examples-lib": "file:../daab-examples-lib",
+    "forever": "^4.0.0",
+    "googleapis": "^100.0.0",
+    "lisb-hubot": ">=4.0.0 <5.0.0",
+    "lisb-hubot-redis-brain": "^1.0.0"
   }
 }
