@@ -1,18 +1,13 @@
-# スケジュールボット G Suite 版
+# スケジュールボット for Google Workspace
 
 ## はじめに
+このドキュメントは direct と Google Workspace を連携させたスケジュールボット (以下、ボット) について、各種設定から実行するまでの手順書となっています。
 
-このドキュメントは、direct と Google Apps を連携させたスケジュールボット(以下、ボット)について、各種設定から実行するまでの手順書となっています。そのため、direct および Google Apps の両サービスをご契約・ご利用中のものとしています。
+direct および Google Workspace の両サービスをご利用中であることを前提としています。
 
-まだ、ご利用でない方は、[direct](https://direct4b.com/ja/) および [Google Apps](https://www.google.co.jp/intx/ja/work/apps/business/) のそれぞれに無料トライアルがありますので、そちらをご参照ください。
-
-## ボット用アカウントの取得
-
-ボット用に、新しくメールアドレスを用意します。例えば、スケジュールボット用に用意したアドレスが `hubot-schedule@gmail.com` だとすると、`hubot-schedule@gmail.com` が direct のログインID、`hubot-schedule@gmail.com`が Google Apps のログインIDになるように登録します。
-
-### direct 
-
-通常のユーザと同じように、ボット用アカウントを作成します。
+## ボット用アカウントと認証情報の準備
+### direct
+ボット用アカウントを通常のユーザと同じように作成します。
 
 組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
 管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
@@ -22,82 +17,69 @@
 
 [ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
 招待を承認する画面が開きますので、その画面で「承認」を選択してください。
-次に、設定＞プロフィール編集より、表示名とプロフィール画像をボット用に変更します。
+ボットのプロフィール情報は右上のドロップダウンメニューにある「プロフィール編集」から変更可能です。
 
-### Google Apps
+### Google Workspace
+Workspace を操作するためのプロジェクトを [Google Cloud Platform コンソール](https://console.cloud.google.com/?hl=ja)から作成します。
 
-連携アプリケーションの作成と同じように、ボット用プロジェクトを作成します。
+1. コンソールを開いてプロジェクトを作成します。
+1. プロジェクトを作成後、ナビゲーションメニューから「API とサービス」の「有効な API とサービス」を選択します。
+1. 画面上の「＋ API とサービスの有効化」をクリックし、"Google Calendar API" を有効にします。
+1. 画面左にある「認証情報」をクリックして認証情報管理画面を開きます。
+1. 画面上の「＋ 認証情報を作成」から「OAuth クライアント ID」を選択し、画面に従って設定を進めます。
+    - このとき「アプリケーションの種類」は "デスクトップアプリ" で作成してください。
+1. 作成完了後「JSON をダウンロード」をクリックして認証情報をダウンロードします。
+    - このファイルはボットの起動で必要になります。
 
-[Google Developer Console](https://console.developers.google.com/) からプロジェクトを追加します。Google Developer Consoleのご利用方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#creatingdeletingprojects)をご参照ください。
+Google Cloud Platform コンソールの操作に関する詳細はサービス公式のドキュメントをご確認ください。
 
-メニュー「APIと認証」の API で Calendar API を有効にします。API の有効方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#activatingapis)をご参照ください。
+## 実行環境の準備
+[このリポジトリ全体に対する README](../README.md) に従って準備してください。
 
-メニュー「APIと認証」の認証情報で、OAuth用に「新しいクライアントIDを作成」します。「インストールされているアプリケーション」「その他」の組み合わせで作成してください。認証情報の設定する方法については、[こちらのヘルプページ](https://developers.google.com/console/help/new/#generatingoauth2)をご参照ください。
-
-## Node.js のインストール
-
-[https://nodejs.org/](https://nodejs.org/) から LTS 版をインストールします。
-
-## サンプルプログラムの設定
-
-このリポジトリを `git clone` して `googleapps-schedule` ディレクトリに移動します。
-以降はこのディレクトリにて、コマンドライン (コマンドプロンプト) で作業することになります。
+## サンプルプログラムの準備
+このリポジトリを `git clone` して `googleapps-schedule` ディレクトリに移動します。以降はこのディレクトリ内で作業します。
 
 ### direct
-
-direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
-
+direct へのアクセスにはアクセストークンが必要です。以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 ```sh
-$ bin/hubot
-Email: loginid@bot.email.com
-Password: *****
-0123456789ABCDEF_your_direct_access_token
-```
-
-以下の環境変数に、アクセストークンを設定します。
-
-```sh
-$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
-```
-
-### Google Apps
-
-Google Apps へのアクセスには、[OAuth2](https://developers.google.com/accounts/docs/OAuth2/)が利用されます。
-
-以下の環境変数に、取得したアプリケーションIDおよびシークレットを設定します。
-
-```sh
-$ export GAPPS_CLIENT_ID=...
-$ export GAPPS_CLIENT_SECRET=...
-```
-
-ボットに初めて話しかけたとき、コンソールにURLが表示されて処理が停止します。
-
-```sh
-$ bin/hubot
+$ daab login
 ...
-https://accounts.google.com/o/oauth2/auth?....
-code? 
+
+Email: bot@example.com
+Password: # no echo back
+logged in.
 ```
 
-この URL をブラウザで開き、Google Apps の案件ボット用アカウントでログインします。ログインが成功すると認可画面が表示されますので承認してください。その後、コードが表示される画面になるので、コマンドラインに戻ってそのコードを入力します。
+`.env` ファイルが作成され、その中に `HUBOT_DIRECT_TOKEN` が保存されていれば成功です。
 
+### Google OAuth2.0
+Workspace リソースへのアクセスには [OAuth2.0](https://developers.google.com/identity/protocols/oauth2) を使用します。
+
+「[ボット用アカウントと認証情報の準備](#ボット用アカウントと認証情報の準備)」でダウンロードした JSON ファイルのパスを以下の環境変数に設定します。
 ```sh
-code? 4/aBcDeF...
+$ export GWS_CLIENT_SECRET_FILE=/path/to/client_secret.json
 ```
-
-トークンの情報は起動したディレクトリの ``.gdrive`` ファイルに保存されます。次回起動時はこの内容が読み込まれます。
 
 ### カレンダーの共有
+ボットが予定を追加・検索するカレンダーは、ボットに話しかける direct ユーザーのメールアドレスと一致する Google アカウントのカレンダーです。例えば、`user@gmail.com` というメールアドレスを持つ direct ユーザーでボットに話しかけている場合、`user@gmail.com` という Google アカウントのカレンダーが操作の対象となります。
 
-ボットが書き込むカレンダーは、direct アカウントのメールアドレスと同じGoogle Apps上のカレンダーになります。例えば、``user1@gmail.com`` で direct にログインしている場合、Google Apps 上の ``user1@gmail.com`` のカレンダーが読み書きの対象となります。
-
-上記のカレンダーに対して、スケジュールボットが読み書きできるように共有の設定をします。「カレンダー設定」の「このカレンダーを共有」のタブにおいて、スケジュールボットのメールアドレス(例えば ``hubot-schedule@gmail.com``) を「変更および共有の管理権限」で追加します。
+上記のカレンダーに対してスケジュールボットが予定を追加・検索できるように共有設定が必要です。「カレンダーの設定」にある「特定のユーザーとの共有」で、スケジュールボットの Google アカウントを「予定の変更」権限で追加してください。
 
 ## サンプルプログラムの実行
+はじめに direct 上でボットとのペアトークを作成します。
 
-以下のコマンドを実行します。
-
+次に以下のコマンドでボットを起動して、
 ```sh
-$ bin/hubot
+$ npm start
 ```
+
+トーク上でボットに「準備開始。」とメッセージします。
+
+ブラウザが起動したらボット用の Google アカウントログインし、**認可確認画面の情報に問題がないことを確認した上で**リソースに対するアクセスを認可します。
+
+ボットから以下のメッセージが返ってきたら準備完了です。
+```
+認可処理に成功しました。準備完了です。
+```
+
+なお上記の処理が完了すると `.credentials.json` というファイルが生成されます。次回の起動からはこちらのファイルに保存された認可情報が使用されます。
