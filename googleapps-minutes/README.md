@@ -1,18 +1,13 @@
-# 議事録ボット G Suite 版
+# 議事録ボット for Google Workspace
 
 ## はじめに
+このドキュメントは direct と Google Workspace を連携させた議事録ボット (以下、ボット) について、各種設定から実行するまでの手順書となっています。
 
-このドキュメントは、direct と Google Apps を連携させた議事録ボット(以下、ボット)について、各種設定から実行するまでの手順書となっています。そのため、direct および Google Apps の両サービスをご契約・ご利用中のものとしています。
+direct および Google Workspace の両サービスをご利用中であることを前提としています。
 
-まだ、ご利用でない方は、[direct](https://direct4b.com/ja/) および [Google Apps](https://www.google.co.jp/intx/ja/work/apps/business/) のそれぞれに無料トライアルがありますので、そちらをご参照ください。
-
-## ボット用アカウントの取得
-
-ボット用に、新しくメールアドレスを用意します。
-
-### direct 
-
-通常のユーザと同じように、ボット用アカウントを作成します。
+## ボット用アカウントと認証情報の準備
+### direct
+ボット用アカウントを通常のユーザと同じように作成します。
 
 組織の管理ツールから、ボット用メールアドレスに招待メールを送信します。
 管理ツールのご利用には権限が必要です。お持ちでない方は、契約者もしくは管理者にご連絡下さい。
@@ -22,57 +17,63 @@
 
 [ログインページ](https://direct4b.com/signin)からボット用メールアドレスでログインします。
 招待を承認する画面が開きますので、その画面で「承認」を選択してください。
-次に、設定＞プロフィール編集より、表示名とプロフィール画像をボット用に変更します。
+ボットのプロフィール情報は右上のドロップダウンメニューにある「プロフィール編集」から変更可能です。
 
+### Google Workspace
+ボット用の Google アカウントを用意してください。
 
-## Node.js のインストール
+## 実行環境の準備
+[このリポジトリ全体に対する README](../README.md) に従って準備してください。
 
-[https://nodejs.org/](https://nodejs.org/) から LTS 版をインストールします。
-
-## サンプルプログラムの設定
-
-このリポジトリを `git clone` して `googleapps-minutes` ディレクトリに移動します。
-以降はこのディレクトリにて、コマンドライン (コマンドプロンプト) で作業することになります。
+## サンプルプログラムの準備
+このリポジトリを `git clone` して `googleapps-schedule` ディレクトリに移動します。以降はこのディレクトリ内で作業します。
 
 ### direct
-
-direct へのアクセスには、アクセストークンが利用されます。アクセストークンの取得には、アクセストークンを環境変数に設定していない状態で、以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
-
+direct へのアクセスにはアクセストークンが必要です。以下のコマンドを実行し、ボット用のメールアドレスとパスワードを入力します。
 ```sh
-$ bin/hubot
-Email: loginid@bot.email.com
-Password: *****
-0123456789ABCDEF_your_direct_access_token
+$ daab login
+...
+
+Email: bot@example.com
+Password: # no echo back
+logged in.
 ```
 
-以下の環境変数に、アクセストークンを設定します。
+`.env` ファイルが作成され、その中に `HUBOT_DIRECT_TOKEN` が保存されていれば成功です。
 
-```sh
-$ export HUBOT_DIRECT_TOKEN=0123456789ABCDEF_your_direct_access_token
+### Google Apps Script
+このサンプルでは Workspace へのアクセスに Google Apps Script を利用します。
+
+ボット用の Google アカウントでログイン後、[Apps Script のコンソール](https://script.google.com/home) から新しいプロジェクトを作成し、"コード.gs" の内容として `googleapps-minutes.gs` の内容をコピー & ペーストします。
+
+次に認可用のキー (※ パスワードを決めるときと同じ要領で生成してください) を作成し、先ほど作成したプロジェクトの "コード.gs" の 5 行目にある "your API key" の部分を先ほどの認可用キーに置換します。
+```javascript
+if (req.parameters.apiKey == 'your API key') { // ここの your API key をキーに変更する
 ```
 
-### Google Apps
+Apps Script コンソールに戻り、右上の「デプロイ」ボタンから「新しいデプロイ」を選択して「種類の選択」の右にあるギアアイコンをクリックし、「ウェブアプリ」を選択します。
 
-Google Apps へのアクセスには、Google Apps Script の「Webアプリケーションとして導入」が利用されます。
+そして「次のユーザーとして実行」を "自分" に、「アクセスできるユーザー」を "全員" とします。
+(**注意！：この設定はサンプル向けに単純なものを選択しています。Apps Script のコードはリクエストに含まれた API キーを検証することで任意のアクセスをブロックしていますが、実際には所属する組織のポリシーに合わせて設定してください。**)
 
-Google Drive で新しいGoogle Apps Script を作成します。テンプレートとしては「ウェブアプリケーションとしてのスクリプ」を選択します。次に、議事録ボット用の Google Apps Script を[ダウンロード](googleapps-minutes.gs)して、テキストファイルで開いてその内容で置換します。
-
-メニューから、公開 > 「Webアプリケーションとして導入」し、議事録ボットからアクセスできるように適切に権限を設定して公開します。このとき表示される「現在のウェブ アプリケーションの URL」を以下の環境変数に設定します。
-
-```sh
-$ export GAPPS_URL=https://script.google.com/a/macros/...
-```
+最後に「デプロイ」をクリックして、発行された URL を以下の環境変数に設定します。
 
 ### 議事録テンプレート
-
-Google Drive に ``議事録ひな形``というファイル名でテンプレートファイルを置きます。
-
-[テンプレートファイルのサンプル](議事録ひな形.docx)をダウンロードできます。このファイルは Word 形式になっていますので、Google Driveにアップロードするときは Google document に変換してください。
+`議事録ひな形.docx` を Google Drive にアップロードして `議事録ひな形` というファイル名で配置します。
 
 ## サンプルプログラムの実行
+以下の 2 つを `.env` に追記します。
+```env
+...
+MINUTES_BOT_URL=https://script.google.com/macros/s/.../exec
+MINUTES_BOT_API_KEY=Bei1Ha...
+```
 
-以下のコマンドを実行します。
+`MINUTES_BOT_URL` には Apps Script のデプロイ後に発行される URL を、`MINUTES_BOT_API_KEY` には Apps Script 内部に指定した API キーを、それぞれ指定してください。
 
+次に direct 上でボットが参加するグループトークを作成します。
+
+最後に以下のコマンドでボットを起動します。
 ```sh
-$ bin/hubot
+$ npm start
 ```
