@@ -1,4 +1,3 @@
-
 const { existsSync } = require('fs');
 const fs = require('fs').promises;
 const { isAbsolute, resolve } = require('path');
@@ -36,4 +35,5 @@ module.exports = {
   authorize,
   drive: require('./google/drive'),
   sheets: require('./google/sheets'),
+  docs: require('./google/docs'),
 };

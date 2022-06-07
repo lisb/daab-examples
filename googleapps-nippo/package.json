@@ -18,9 +18,11 @@
     "forever": "^4.0.0",
     "googleapis": "^100.0.0",
     "lisb-hubot": ">=4.0.0 <5.0.0",
-    "lisb-hubot-redis-brain": "^1.0.0"
+    "lisb-hubot-redis-brain": "^1.0.0",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
+    "@types/google-apps-script": "^1.0.47",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "prettier": "^2.6.2"
