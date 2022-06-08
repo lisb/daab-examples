@@ -1,29 +1,31 @@
 # daab Examples
+このリポジトリは daab SDK を使ったボットのサンプルプロジェクトを含んでいます。
 
-This repository contains a set of example projects for the daab SDK.
-
-## Prerequisites
-To run these examples, you will need the following:
+## 必須要件
+これらのプロジェクトを実行するためには以下のソフトウェアが必要です。
 - Node.js (LTS ver.)
 - Redis
-- daab CLI
+- [daab CLI](https://github.com/lisb/daab)
 
 ### Node.js
-The daab SDK uses Node.js. It's recommended to use long-term support versions of node.
+daab SDK は Node.js を使っています。インストールするバージョンは LTS 版を推奨します。
 
-To install Node.js visite the [nodejs.org](https://nodejs.org/) website. In the website, you can find information about downloading and installing Node.js.
+Node.js のインストール方法については [nodejs.org](https://nodejs.org/) をご覧ください。
 
 ### Redis
-By default, bots using the daab SDK use Redis. To install Redis is recommended.
+daab SDK を使って作成したボットはデフォルトで Redis を使います。Redis をインストールしなくても動作しますが、その場合は `robot.brain` にセットした情報がメモリ上にのみ保持されることになります。
 
-To find information about downloading, installing and setting Redis visit [here](https://redis.io/).
+Redis のインストール方法と設定については [redis.io](https://redis.io/) をご覧ください。
 
 ### daab CLI
-The daab CLI is a command-line utility which supports you to develop bots using the daab SDK.
+daab CLI は daab SDK を使ったボット開発をサポートするためのコマンドラインツールです。
 
-Open a terminal session and run the following commnad:
+Node.js をインストールした後、以下のコマンドでインストールします。
 ```sh
 $ npm install -g daab
 ```
 
-Make sure you have the latest version of the daab CLI installed on your system.
+daab CLI の最新版がインストールされていることを確認してください。
+
+## 実行方法
+各サンプルプロジェクトの README をご覧ください。
