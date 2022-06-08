@@ -1,6 +1,6 @@
 // Description:
 //   Google Workspace 上の案件管理スプレッドシートのデータを参照します。
-// 
+//
 // Dependencies:
 //   None
 //
@@ -9,10 +9,6 @@
 //   GWS_CLIENT_SECRET_FILE 案件ボット用の OAuth2.0 クライアント認証情報ファイル (.json)
 //
 // Commands:
-//   hubot 案件 - 最新5件の案件を表示します。
-//   hubot <会社名>の件 - <会社名>の案件を表示します。(最新5件)
-//   hubot <担当者名>さんの担当 - 先方担当者が<担当者名>の案件を表示します。(最新5件)
-//   hubot 売上 - 今月と先月の売り上げを表示します。
 //
 // Author:
 //   L is B corp.
@@ -29,55 +25,52 @@ const ASSIGN_FIELD = '先方担当者名';
 const sheets = google.sheets('v4');
 const scopes = [
   'https://www.googleapis.com/auth/drive',
-  'https://www.googleapis.com/auth/spreadsheets'
+  'https://www.googleapis.com/auth/spreadsheets',
 ];
-let driveFile = null;
+let ankenSheet = null;
+
+async function setup() {
+  if (ankenSheet) {
+    return;
+  }
+
+  const auth = await lib.authorize(GWS_CLIENT_SECRET_FILE, scopes, GWS_CREDENTIAL_STORE_FILE);
+  google.options({ auth });
+
+  const drive = new lib.drive.Client(google.drive('v3'));
+  return (ankenSheet = await drive.findDriveFileByName(ANKEN_WORKSHEET_NAME));
+}
 
 module.exports = (robot) => {
-  robot.hear(/準備開始[。．.]$/i, (res) => {
-    lib.authorize(GWS_CLIENT_SECRET_FILE, scopes, GWS_CREDENTIAL_STORE_FILE)
-      .then((auth) => {
-        google.options({ auth });
-        const drive = new lib.drive.Client(google.drive('v3'));
-        res.send(`認可処理に成功しました。続いて「${ANKEN_WORKSHEET_NAME}」を探します...`);
-        return drive.findDriveFileByName(ANKEN_WORKSHEET_NAME);
-      })
-      .then((file) => {
-        driveFile = file;
-        res.send(`スプレッドシートがみつかりました。${file.id}\n準備完了です。`);
-      })
-      .catch((err) => {
-        robot.logger.error(err);
-        res.send(`準備に失敗しました。設定を確認してください。`);
-      });
-  });
+  setup()
+    .then((file) => robot.logger.info('setup:', `${file.id} found`))
+    .catch((err) => robot.logger.error('setup:', err));
 
   robot.hear(/案件/i, (res) => {
-    findAnken(driveFile, '', '')
+    findAnken(ankenSheet, '', '')
       .then((records) => formatAnken(records))
       .then((text) => res.send(text))
       .catch(onError(res));
   });
 
   robot.hear(/([^。、.,]{2,})(の案?件).*/i, (res) => {
-    findAnken(driveFile, ANKEN_FIELD, res.match[1])
+    findAnken(ankenSheet, ANKEN_FIELD, res.match[1])
       .then((records) => formatAnken(records))
       .then((text) => res.send(text))
       .catch(onError(res));
   });
 
   robot.hear(/([^。、.,]{1,5})(さん|くん|君).*/i, (res) => {
-    findAnken(driveFile, ASSIGN_FIELD, res.match[1])
+    findAnken(ankenSheet, ASSIGN_FIELD, res.match[1])
       .then((records) => formatAnken(records))
       .then((text) => res.send(text))
       .catch(onError(res));
   });
 
-  const onError = (res) =>
-    (err) => {
-      res.robot.logger.error(err);
-      res.send('エラーが発生しました。ボットのログを確認してください。');
-    };
+  const onError = (res) => (err) => {
+    res.robot.logger.error(err);
+    res.send('エラーが発生しました。ボットのログを確認してください。');
+  };
 };
 
 async function findAnken(file, field, value) {
@@ -93,9 +86,9 @@ async function findAnken(file, field, value) {
 
 function formatAnken(records) {
   if (!records || records.length < 1) {
-    return 'みつかりませんでした。'
+    return 'みつかりませんでした。';
   } else {
-    return records.map(r => formatRecord(r)).join("\n");
+    return records.map((r) => formatRecord(r)).join('\n');
   }
 }
 
@@ -107,5 +100,5 @@ function formatRecord(record) {
     ` 製品名: ${record.value('製品名')} (単価: ${record.value('単価')}円)`,
     ` 小計: ${record.value('小計')}円 (ユーザー数: ${record.value('ユーザー数')}人)`,
     '',
-  ].join("\n");
+  ].join('\n');
 }

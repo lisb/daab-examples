@@ -12,8 +12,6 @@
 //   DAILY_REPORT_API_URL 日報 API (Google Apps Script) のエンドポイント URL
 //
 // Commands:
-//   hubot 日報 - 今日作成された日報を一覧します。
-//   hubot <お疲れさまなど> - 今日の日報を作成する.
 //
 // Author:
 //   L is B Corp.
@@ -30,22 +28,20 @@ const DAILY_REPORT_API_KEY = process.env.DAILY_REPORT_API_KEY || 'your API key';
 const DAILY_REPORT_API_URL = process.env.DAILY_REPORT_API_URL;
 
 let drive = null;
-let docs = null;
 
 async function setupGoogleClients() {
-  if (drive && docs) {
+  if (drive) {
     return;
   }
 
   const auth = await lib.authorize(
     GWS_CLIENT_SECRET_FILE,
-    ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'],
+    ['https://www.googleapis.com/auth/drive'],
     GWS_CREDENTIAL_STORE_FILE
   );
   google.options({ auth });
 
   drive = new lib.drive.Client(google.drive('v3'));
-  docs = new lib.docs.Document(google.docs('v1'));
 }
 
 const notifyBotError = (res) => (err) => {
@@ -54,7 +50,9 @@ const notifyBotError = (res) => (err) => {
 };
 
 module.exports = (robot) => {
-  setupGoogleClients().catch((err) => robot.logger.error(err));
+  setupGoogleClients()
+    .then(() => robot.logger.info('setup:', 'bot authorized'))
+    .catch((err) => robot.logger.error('setup:', err));
 
   const brain = robot.brain;
 
@@ -138,7 +136,7 @@ function getState(brain, key) {
 
 function currentState(brain, key) {
   const saved = getState(brain, key);
-  if (saved === null || saved === undefined) {
+  if (!saved) {
     return BotStates.IDLE;
   }
   const [state, time] = saved.split('@');

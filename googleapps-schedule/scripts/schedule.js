@@ -1,6 +1,6 @@
 // Description:
 //   Google Calendar 上の予定を追加・検索します。
-// 
+//
 // Dependencies:
 //   None
 //
@@ -20,22 +20,17 @@ const GWS_CLIENT_SECRET_FILE = process.env.GWS_CLIENT_SECRET_FILE;
 const GWS_CREDENTIAL_STORE_FILE = process.env.GWS_CREDENTIAL_STORE_FILE;
 
 const calendar = google.calendar('v3');
-const scopes = [
-  'https://www.googleapis.com/auth/calendar'
-];
+const scopes = ['https://www.googleapis.com/auth/calendar'];
+
+async function setup() {
+  const auth = await lib.authorize(GWS_CLIENT_SECRET_FILE, scopes, GWS_CREDENTIAL_STORE_FILE);
+  google.options({ auth });
+}
 
 module.exports = (robot) => {
-  robot.hear(/準備開始[。．.]$/i, (res) => {
-    lib.authorize(GWS_CLIENT_SECRET_FILE, scopes, GWS_CREDENTIAL_STORE_FILE)
-      .then((auth) => {
-        google.options({ auth });
-        res.send(`認可処理に成功しました。準備完了です。`);
-      })
-      .catch((err) => {
-        robot.logger.error(err);
-        res.send(`準備に失敗しました。設定を確認してください。`);
-      });
-  });
+  setup()
+    .then(() => robot.logger.info('setup:', 'bot authorized'))
+    .catch((err) => robot.logger.error('setup:', err));
 
   robot.respond(/(.*[^?？])$/, (res) => {
     if (/準備開始[。．.]$/.test(res.message.text.trim())) {
@@ -88,14 +83,19 @@ function formatEvents(events) {
   if (!events || events.length < 1) {
     return 'みつかりませんでした。';
   }
-  return events.filter(e => e.status !== 'cancelled').map(e => formatEvent(e)).join("\n\n");
+  return events
+    .filter((e) => e.status !== 'cancelled')
+    .map((e) => formatEvent(e))
+    .join('\n\n');
 }
 
 function formatEvent(event) {
   return [
-    `${formatDateTime(event.start.dateTime)} - ${formatDateTime(event.end.dateTime)} ${event.summary}`,
+    `${formatDateTime(event.start.dateTime)} - ${formatDateTime(event.end.dateTime)} ${
+      event.summary
+    }`,
     `${event.htmlLink}`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function formatDateTime(datetime) {
