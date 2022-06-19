@@ -5,7 +5,7 @@ class Client {
     this.#drive = drive;
   }
 
-  async findDriveFileByName(name) {
+  async getFileByName(name) {
     const q = [`name = '${name}'`, 'trashed = false'];
     const res = await this.#drive.files.list({
       q: q.join(' and '),
@@ -15,10 +15,6 @@ class Client {
 
     const dfs = (res.data.files || []).map((file) => new DriveFile(file));
     return dfs.length > 0 ? dfs[0] : null;
-  }
-
-  async getFileByName(name) {
-    return this.findDriveFileByName(name);
   }
 
   async getFiles(folderId, pageSize = 10) {

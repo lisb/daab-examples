@@ -38,7 +38,7 @@ async function setup() {
   google.options({ auth });
 
   const drive = new lib.drive.Client(google.drive('v3'));
-  return (ankenSheet = await drive.findDriveFileByName(ANKEN_WORKSHEET_NAME));
+  return (ankenSheet = await drive.getFileByName(ANKEN_WORKSHEET_NAME));
 }
 
 module.exports = (robot) => {

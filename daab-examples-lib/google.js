@@ -35,5 +35,4 @@ module.exports = {
   authorize,
   drive: require('./google/drive'),
   sheets: require('./google/sheets'),
-  docs: require('./google/docs'),
 };
