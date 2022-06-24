@@ -56,10 +56,10 @@ Apps Script コンソールに戻り、右上の「デプロイ」ボタンか�
 (**注意！：これはサンプル向けの設定です。サンプルコードではリクエストに含まれた API キーを検証することで任意のアクセスをブロックしています。実運用される場合は所属する組織のポリシーに合わせて変更してください。**)
 
 最後に「デプロイ」をクリックするとアクセス用の URL が発行されます。
-先ほど生成した API キーとこの URL を以下のように環境変数に設定します。
+この URL と先ほど生成した API キーを以下のように環境変数に設定します。
 ```sh
+$ export MINUTES_BOT_URL=https://script.google.com/macros/s/.../exec # 発行された URL を指定してください
 $ export MINUTES_BOT_API_KEY=Bei1Ha... # 実際に Apps Script へ設定した値と同じ値を指定してください
-$ export MINUTES_BOT_URL=https://script.google.com/macros/s/.../exec
 ```
 
 ### Google Drive
