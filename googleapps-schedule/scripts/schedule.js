@@ -33,9 +33,6 @@ module.exports = (robot) => {
     .catch((err) => robot.logger.error('setup:', err));
 
   robot.respond(/(.*[^?？])$/, (res) => {
-    if (/準備開始[。．.]$/.test(res.message.text.trim())) {
-      return; // skip
-    }
     addEvent(res.message.user.email, res.match[1])
       .then((event) => formatEvent(event))
       .then((text) => res.send(`追加しました。\n${text}`))
