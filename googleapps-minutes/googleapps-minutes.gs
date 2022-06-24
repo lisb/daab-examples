@@ -1,3 +1,8 @@
+// Copyright (c) L is B Corp.
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 function doPost (req) {
   const postData = JSON.parse(req.postData.contents);
 

@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "author": "L is B corp.",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@google-cloud/local-auth": "^1.0.1",
     "googleapis": "^100.0.0"

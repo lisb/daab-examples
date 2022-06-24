@@ -1,3 +1,7 @@
+// Copyright (c) 2022 L is B Corp.
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
 
 class SheetTable {
   #header;
@@ -17,7 +21,9 @@ class SheetTable {
     if (c < 0) {
       return null;
     }
-    return this.#rows.filter(row => row[c].includes(value)).map(row => new SheetTableRecord(this.#header, row));
+    return this.#rows
+      .filter((row) => row[c].includes(value))
+      .map((row) => new SheetTableRecord(this.#header, row));
   }
 }
 
@@ -29,7 +35,7 @@ class SheetTableRecord {
   }
 
   value(name) {
-    const res = this.#cells.find(c => c.name === name);
+    const res = this.#cells.find((c) => c.name === name);
     return res ? res.value : null;
   }
 }

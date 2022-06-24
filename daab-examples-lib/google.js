@@ -1,3 +1,8 @@
+// Copyright (c) 2022 L is B Corp.
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 const { existsSync } = require('fs');
 const fs = require('fs').promises;
 const { isAbsolute, resolve } = require('path');

@@ -1,3 +1,8 @@
+// Copyright (c) 2022 L is B Corp.
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 class Client {
   #drive;
 
