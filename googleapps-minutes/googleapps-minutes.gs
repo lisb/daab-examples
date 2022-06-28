@@ -1,53 +1,36 @@
-//----------------------------------------------------
-// GET
-//----------------------------------------------------
-function doGet (req) {
+// Copyright (c) L is B Corp.
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
 
-  var result = {};
+function doPost (req) {
+  const postData = JSON.parse(req.postData.contents);
 
-  if (req.parameters.apiKey == 'XXX') {
-    var talkInfo = JSON.parse(req.parameters.talkInfo);
+  let result = { responser: 'meeting-bot' };
+  if (postData.apiKey == 'your API key') {
+    const talkInfo = postData.talkInfo;
     if (talkInfo.type != 2 || talkInfo.param._stampId != 7) {
-      result.responseCode = executeBot(talkInfo);
+      result.statusCode = executeBot(talkInfo);
+      console.info(`The bot was executed by ${talkInfo.poster}`);
+    } else {
+      result.statusCode = 200;
+      result.message = 'no execution';
     }
-    else {
-      result.responseCode = 200;
-    }
-    Logger.log('executeBot');
+  } else {
+    result.statusCode = 401;
+    result.message = 'unauthenticated';
+    console.warn('Unauthenticated')
   }
-  else {
-    Logger.log('error: 401');
-    result.responseCode = 401;
-  }
-  
-  result.type = 0;
-  result.responser = 'meeting-bot';
-  
-  return ContentService.createTextOutput(
-    req.parameters.callback + '(' + JSON.stringify(result) + ')')
-    .setMimeType(ContentService.MimeType.JSON);
+
+  const response = ContentService.createTextOutput();
+  response.setContent(JSON.stringify(result));
+  response.setMimeType(ContentService.MimeType.JSON);
+  return response;
 }
 
-function test() {
-  var talkInfo = {
-    roomName: '(名前なし)',
-    gmails: [Session.getEffectiveUser().getEmail()],
-    names: ['ダーブ'],
-    posttime: parseInt(new Date() / 1000),
-    poster: 'ダーブ',
-    message: 'テストです'
-  };
-  executeBot(talkInfo);
-}
-
-//----------------------------------------------------
-// botの実行
-//----------------------------------------------------
 function executeBot(talkInfo) {
-  
   var lock = LockService.getPublicLock();
   try {
-    
     // 30秒間ロック
     lock.waitLock(30000);
     
@@ -126,41 +109,34 @@ function executeBot(talkInfo) {
     //------------------------------------------------
     // 議事録ボタンの押下
     if (talkInfo.type == 2) {
-
       // メッセージの取得
       var message = talkInfo.message;
       if (message == '') {
         message = getLatestMessage(paragraphs);
       }
-      
+
       // 各ボタンの処理
       switch (talkInfo.param._stampId) {
-          
         // 会議名
         case 1:
           setTitle(paragraphs, message);
           break;
-          
         // 場所
         case 2:
           setPlace(paragraphs, message);
           break;
-          
         // 議題
         case 3:
           setAgenda(doc, paragraphs, message);
           break;
-          
         // 重要事項
         case 4:
           setImportant(doc, paragraphs, message);
           break;
-          
         // 決定事項
         case 5:
           setConclusion(doc, paragraphs, message);
           break;
-          
         // 宿題
         case 6:
           setTodo(doc, paragraphs, message);
@@ -171,23 +147,18 @@ function executeBot(talkInfo) {
     //------------------------------------------------
     // 会話履歴の追加
     if(talkInfo.message != ''){
-//      talkInfo.message = JSON.stringify(talkInfo);  // for debug
       appendMessage(doc, talkInfo.poster, talkInfo.posttime, talkInfo.message);
     }
-    
-    // ロックを解除
-    lock.releaseLock();
     return 200;  // レスポンスコード
-  }
-  
-  // エラー
-  
-  catch(e) {
+  } catch(e) {
+    console.error('executeBot failed:', e);
     if(e.message.indexOf('another process was holding the lock')>0){
       return 409;
     } else {
       return 400;
     }
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -448,15 +419,6 @@ function createDoc(roomName, members) {
 // 汎用ルーチン
 //----------------------------------------------------
 /**
- * Date型をunixtimeに変換
- * @param {Date} d
- * @returm {int}
- */
-function dateToUnixtime(d) {
-  return parseInt(d / 1000);
-}
-
-/**
  * unixtimeをDate型に変換
  * @param {int} ts
  * @return {Date}
@@ -465,34 +427,16 @@ function unixtimeToDate(ts) {
   return new Date(ts * 1000);
 }
 
-/**
- * 指定のブロックの先頭段落の取得
- * @param {Paragraph} pars ドキュメントの全ての段落
- * @param {string} blockName ブロック名
- * @return {?Paragraph} 先頭段落
- */
-function searchFirstParagraph(pars, blockName) {
-  for(var i=0; i<(pars.length-1); i++) {
-    if(pars[i].getHeading() != DocumentApp.ParagraphHeading.HEADING3) continue;
-    if(pars[i].getText() == blockName) {
-      return pars[i+1];
-    }
-  }
-  return null;
-}
+// その他
 
-//--------------- 以下、未使用 -----------------
-/**
- * 配列から指定の要素を削除
- * 配列は参照渡しなので、引数の配列から要素が削除される
- * @param {Array.<*>} array 配列
- * @param {*} target 削除対象
- */
-function removeFromArray(array, target) {
-  for(var i=array.length-1; 0<=i; i--){
-    if(array[i] == target){
-      array.splice(i, 1);
-    }
-  }
-  return array;
+function test() {
+  var talkInfo = {
+    roomName: '(名前なし)',
+    gmails: [Session.getEffectiveUser().getEmail()],
+    names: ['ダーブ'],
+    posttime: parseInt(new Date() / 1000),
+    poster: 'ダーブ',
+    message: 'テストです'
+  };
+  executeBot(talkInfo);
 }
