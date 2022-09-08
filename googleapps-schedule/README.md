@@ -66,7 +66,12 @@ $ export GWS_CLIENT_SECRET_FILE=/path/to/client_secret.json
 ## サンプルプログラムの実行
 はじめに direct 上でボットとのペアトークを作成します。
 
-次に以下のコマンドでボットを起動します。
+次に以下のコマンドで依存パッケージを準備します。
+```sh
+$ npm ci
+```
+
+最後に以下のコマンドでボットを起動します。
 ```sh
 $ npm start
 ```
