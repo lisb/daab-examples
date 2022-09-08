@@ -53,7 +53,9 @@ logged in.
 ### Google OAuth 2.0
 Workspace リソースへのアクセスには [OAuth 2.0](https://developers.google.com/identity/protocols/oauth2) を使用します。
 
-「[ボット用アカウントと認証情報の準備](#ボット用アカウントと認証情報の準備)」でダウンロードした JSON ファイルのパスを以下の環境変数に設定します。
+「[ボット用アカウントと認証情報の準備](#ボット用アカウントと認証情報の準備)」でダウンロードした JSON ファイルの `redirect_uris` の値を `["http://localhost:3000/oauth2callback"]` に変更します。
+
+次に上記 JSON ファイルのパスを以下の環境変数に設定します。
 ```sh
 $ export GWS_CLIENT_SECRET_FILE=/path/to/client_secret.json
 ```
@@ -71,7 +73,12 @@ $ export ANKEN_WORKSHEET_NAME=案件管理_2022 # 案件管理 → 案件管理_
 ## サンプルプログラムの実行
 はじめに direct 上でボットが参加するグループトークを作成します。ペアトークでは正常に動作しません。
 
-次に以下のコマンドでボットを起動します。
+次に以下のコマンドで依存パッケージを準備します。
+```sh
+$ npm ci
+```
+
+最後に以下のコマンドでボットを起動します。
 ```sh
 $ npm start
 ```
