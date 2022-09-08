@@ -53,7 +53,9 @@ logged in.
 ### Google OAuth 2.0
 Google Drive へのアクセスの認可には [OAuth 2.0](https://developers.google.com/identity/protocols/oauth2) を使用します。
 
-「[ボット用アカウントと認証情報の準備](#ボット用アカウントと認証情報の準備)」でダウンロードした認証情報 JSON ファイルのパスを以下の環境変数に設定します。
+「[ボット用アカウントと認証情報の準備](#ボット用アカウントと認証情報の準備)」でダウンロードした認証情報 JSON ファイルの `redirect_uris` の値を `["http://localhost:3000/oauth2callback"]` に変更します。
+
+次に上記 JSON ファイルのパスを以下の環境変数に設定します。
 ```sh
 $ export GWS_CLIENT_SECRET_FILE=/path/to/client_secret.json
 ```
