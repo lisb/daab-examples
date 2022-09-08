@@ -34,4 +34,10 @@ $ npm install -g daab
 daab CLI の最新版がインストールされていることを確認してください。
 
 ## 実行方法
-各サンプルプロジェクトの README をご覧ください。
+まずはじめに `daab-examples-lib` で `npm ci` を実行してください。
+```bash
+cd daab-examples-lib
+npm ci
+```
+
+後は各サンプルプロジェクトの README をご覧ください。
