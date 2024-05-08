@@ -29,8 +29,8 @@ async function setup() {
 
 module.exports = (robot) => {
   setup()
-    .then(() => robot.logger.info('setup:', 'bot authorized'))
-    .catch((err) => robot.logger.error('setup:', err));
+    .then(() => robot.logger.info({ setup: 'bot authorized' }))
+    .catch((err) => robot.logger.error({ setup: err }));
 
   robot.respond(/(.*[^?？])$/, (res) => {
     addEvent(res.message.user.email, res.match[1])
