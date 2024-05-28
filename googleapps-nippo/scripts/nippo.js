@@ -51,8 +51,8 @@ const notifyBotError = (res) => (err) => {
 
 module.exports = (robot) => {
   setupGoogleClients()
-    .then(() => robot.logger.info('setup:', 'bot authorized'))
-    .catch((err) => robot.logger.error('setup:', err));
+    .then(() => robot.logger.info('setup: bot authorized'))
+    .catch((err) => robot.logger.error('setup: %o', err));
 
   const brain = robot.brain;
 
@@ -187,7 +187,7 @@ const botStateActions = {};
 
 botStateActions[BotStates.IDLE] = async (res /*, text */) => {
   const report = await getOrCreateTodayReport(drive, createDailyReportName(res));
-  res.robot.logger.info('prepared:', report.id);
+  res.robot.logger.info('prepared: %s', report.id);
 
   const text = messageBeginReport(getUserName(res), formatDate(new Date()));
   res.send({ stamp_set: 3, stamp_index: '1152921507291203590', text });
@@ -320,7 +320,7 @@ async function updateTodayReport(res, docId, field, text) {
     body: JSON.stringify({ apiKey: DAILY_REPORT_API_KEY, data }),
   };
   const response = await (await fetch(DAILY_REPORT_API_URL, options)).json();
-  res.robot.logger.info('updateTodayReport:', response);
+  res.robot.logger.info('updateTodayReport: %o', response);
 }
 
 // response messages

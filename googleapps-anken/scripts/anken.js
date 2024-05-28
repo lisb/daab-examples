@@ -43,8 +43,8 @@ async function setup() {
 
 module.exports = (robot) => {
   setup()
-    .then((file) => robot.logger.info('setup:', `${file.id} found`))
-    .catch((err) => robot.logger.error('setup:', err));
+    .then((file) => robot.logger.info('setup: %s found', file.id))
+    .catch((err) => robot.logger.error('setup: %o', err));
 
   robot.hear(/案件/i, (res) => {
     findAnken(ankenSheet, '', '')
