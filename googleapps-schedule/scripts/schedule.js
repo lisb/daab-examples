@@ -29,8 +29,8 @@ async function setup() {
 
 module.exports = (robot) => {
   setup()
-    .then(() => robot.logger.info({ setup: 'bot authorized' }))
-    .catch((err) => robot.logger.error({ setup: err }));
+    .then(() => robot.logger.info('setup: bot authorized'))
+    .catch((err) => robot.logger.error('setup: %o', err));
 
   robot.respond(/(.*[^?？])$/, (res) => {
     addEvent(res.message.user.email, res.match[1])
@@ -88,8 +88,7 @@ function formatEvents(events) {
 
 function formatEvent(event) {
   return [
-    `${formatDateTime(event.start.dateTime)} - ${formatDateTime(event.end.dateTime)} ${
-      event.summary
+    `${formatDateTime(event.start.dateTime)} - ${formatDateTime(event.end.dateTime)} ${event.summary
     }`,
     `${event.htmlLink}`,
   ].join('\n');
